@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import linregress
 
 # Estilos CSS personalizados
 def agregar_estilos():
@@ -109,10 +108,20 @@ def main():
             df['Fecha'] = pd.to_datetime({'year': df['Año'], 'month': df['Mes'], 'day': 1})
             df_ventas_mensuales = df.groupby('Fecha').agg(Ventas_Totales=("Unidades_vendidas", "sum")).reset_index()
 
-            # Calcular la tendencia
+            # Calcular la tendencia manualmente
             x = np.arange(len(df_ventas_mensuales))
             y = df_ventas_mensuales['Ventas_Totales']
-            slope, intercept, _, _, _ = linregress(x, y)
+            n = len(x)
+
+            x_mean = np.mean(x)
+            y_mean = np.mean(y)
+
+            # Fórmulas de mínimos cuadrados
+            numerator = np.sum((x - x_mean) * (y - y_mean))
+            denominator = np.sum((x - x_mean) ** 2)
+            slope = numerator / denominator
+            intercept = y_mean - slope * x_mean
+
             tendencia = slope * x + intercept
 
             # Graficar la evolución
